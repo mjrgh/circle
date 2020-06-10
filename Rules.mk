@@ -24,12 +24,12 @@ CIRCLEHOME ?= ..
 -include $(CIRCLEHOME)/Config2.mk	# is not overwritten by "configure"
 
 AARCH	 ?= 32
-RASPPI	 ?= 1
+RASPPI	 ?= 4
 PREFIX	 ?= arm-none-eabi-
 PREFIX64 ?= aarch64-none-elf-
 
 # see: doc/stdlib-support.txt
-STDLIB_SUPPORT ?= 1
+STDLIB_SUPPORT ?= 2
 
 # set this to 0 to globally disable dependency checking
 CHECK_DEPS ?= 1
@@ -97,6 +97,11 @@ ifeq ($(strip $(AARCH)),64)
 CRTBEGIN != $(CPP) $(ARCH) -print-file-name=crtbegin.o
 CRTEND   != $(CPP) $(ARCH) -print-file-name=crtend.o
 endif
+else ifeq ($(strip $(STDLIB_SUPPORT)),2)
+LIBM	  != $(CPP) $(ARCH) -print-file-name=libm.a
+LIBSTDCPP != $(CPP) $(ARCH) -print-file-name=libstdc++.a
+EXTRALIBS += $(LIBM) $(LIBSTDCPP)
+CPPFLAGS += -fno-exceptions -fno-rtti
 else
 CPPFLAGS  += -fno-exceptions -fno-rtti -nostdinc++
 endif

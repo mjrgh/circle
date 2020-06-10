@@ -36,7 +36,7 @@ CKernel::CKernel (void)
 {
 	s_pThis = this;
 
-	m_ActLED.Blink (5);	// show we are alive
+	//m_ActLED.Blink (5);	// show we are alive
 }
 
 CKernel::~CKernel (void)

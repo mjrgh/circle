@@ -89,6 +89,7 @@ protected:
 	/// \note Does only work with interrupt driver.
 	int Peek (void);
 
+public:
 	/// \brief Waits until all written bytes have been sent out
 	void Flush (void);
 

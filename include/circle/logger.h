@@ -72,6 +72,8 @@ public:
 
 	static CLogger *Get (void);
 
+	void SetNewTarget (CDevice *pTarget);
+
 private:
 	void Write (const char *pString);
 

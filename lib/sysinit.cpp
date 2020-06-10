@@ -63,7 +63,7 @@ void __sync_synchronize (void)
 
 #endif
 
-#if STDLIB_SUPPORT == 1
+#if STDLIB_SUPPORT == 1 || STDLIB_SUPPORT == 2
 
 int *__errno (void)
 {

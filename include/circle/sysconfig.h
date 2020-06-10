@@ -35,7 +35,7 @@
 // increase this value. The value must be a multiple of 16 KByte.
 
 #ifndef KERNEL_MAX_SIZE
-#define KERNEL_MAX_SIZE		(2 * MEGABYTE)
+#define KERNEL_MAX_SIZE		(8 * MEGABYTE)
 #endif
 
 // HEAP_DEFAULT_NEW defines the default heap to be used for the "new"

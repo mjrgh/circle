@@ -130,7 +130,7 @@ private:
 	void Enqueue (const void *pBuffer, unsigned nCount);
 	void Dequeue (void *pBuffer, unsigned nCount);
 
-private:
+protected:
 	TSoundFormat m_HWFormat;
 	unsigned m_nSampleRate;
 

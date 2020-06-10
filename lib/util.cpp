@@ -51,7 +51,7 @@ void *memset (void *pBuffer, int nValue, size_t nLength)
 	return pBuffer;
 }
 
-#if STDLIB_SUPPORT <= 1
+#if STDLIB_SUPPORT <= 2
 
 void *memmove (void *pDest, const void *pSrc, size_t nLength)
 {

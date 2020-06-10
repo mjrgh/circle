@@ -62,6 +62,25 @@
 #define HEAP_DEFAULT_MALLOC	HEAP_LOW
 #endif
 
+// HEAP_BLOCK_BUCKET_SIZES configures the heap allocator, which is the
+// base of dynamic memory management ("new" operator and malloc()). The
+// heap allocator manages free memory blocks in a number of free lists
+// (buckets). Each free list contains blocks of a specific size. On
+// block allocation the requested block size is rounded up to the
+// size of next available bucket size. If the requested size is greater
+// than the largest available bucket size, the block can be allocated,
+// but the memory space is lost, if the block will be freed later.
+// Because the block buckets have to be walked through on each allocate
+// and free operation, it is preferable to have only a few buckets.
+// With this option you can configure the bucket sizes, so that they
+// fit best for your application needs. You have to define a comma
+// separated list of increasing bucket sizes. All sizes must be a
+// multiple of 16. Up to 20 sizes can be defined.
+
+#ifndef HEAP_BLOCK_BUCKET_SIZES
+#define HEAP_BLOCK_BUCKET_SIZES	0x40,0x400,0x1000,0x4000,0x10000,0x40000,0x80000
+#endif
+
 ///////////////////////////////////////////////////////////////////////
 //
 // Raspberry Pi 1 and Zero
@@ -248,6 +267,20 @@
 #define SERIAL_GPIO_SELECT	14	// and 15
 //#define SERIAL_GPIO_SELECT	32	// and 33
 //#define SERIAL_GPIO_SELECT	36	// and 37
+
+#endif
+
+// USE_SDHOST selects the SDHOST device as interface for SD card
+// access. Otherwise the EMMC device is used for this purpose. The
+// SDHOST device is supported by Raspberry Pi 1-3 and Zero, but
+// not by QEMU. If you rely on a small IRQ latency, USE_SDHOST should
+// be disabled.
+
+#if RASPPI <= 3 && !defined (REALTIME)
+
+#ifndef NO_SDHOST
+#define USE_SDHOST
+#endif
 
 #endif
 

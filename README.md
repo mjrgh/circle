@@ -6,37 +6,16 @@ Circle
 Overview
 --------
 
-Circle is a C++ bare metal programming environment for the Raspberry Pi. It should be usable on all existing models (tested on model A+, B, B+, on Raspberry Pi 2, 3, 4 and on Raspberry Pi Zero). It provides several ready-tested C++ classes which can be used to control different hardware features of the Raspberry Pi. Together with Circle there are delivered some samples which demonstrate the use of its classes. Circle can be used to create 32-bit or 64-bit bare metal applications.
+Circle is a C++ bare metal programming environment for the Raspberry Pi. It should be usable on all existing models (tested on model A+, B, B+, on Raspberry Pi 2, 3, 4 and on Raspberry Pi Zero). It provides several ready-tested [C++ classes](doc/classes.txt) and [add-on libraries](addon/README), which can be used to control different hardware features of the Raspberry Pi. Together with Circle there are delivered several [sample programs](sample/README), which demonstrate the use of its classes. Circle can be used to create 32-bit or 64-bit bare metal applications.
 
 Circle includes bigger (optional) third-party C-libraries for specific purposes in addon/ now. This is the reason why GitHub rates the project as a C-language-project. The main Circle libraries are written in C++ using classes instead. That's why it is named a C++ programming environment.
 
-Release 41.1
-------------
-
-This is a hotfix release, which fixes the bootloader. It did not work with the recommended firmware on Raspberry Pi 1 and Zero any more.
-
-The 41st Step
+The 42nd Step
 -------------
 
-With this release Circle supports nearly all features on the Raspberry Pi 4, which are known from earlier models. Only OpenGL ES / OpenVG / EGL and the I2C slave support are not available.
+This release adds **Wireless LAN access** support in [addon/wlan](addon/wlan) to Circle. Please read the [README file](addon/wlan/sample/README) of the sample program for details! The WLAN support in Circle is still experimental.
 
-On Raspberry Pi 4 models with over 1 GB SDRAM Circle provides a separate *HEAP_HIGH* memory region now. You can use it to dynamically allocate memory blocks with `new` and `malloc()` as known from the low heap. Both heaps can be configured to form a larger unified heap using a system option. Please read the file *doc/new-operator.txt* for details about using and configuring the heaps.
-
-The new *sample/39-umsdplugging* demonstrates how to use `CUSBHCIDevice::RescanDevices()` and `CDevice::RemoveDevice()` to be able to attach USB mass-storage devices (e.g. USB flash drives) and to remove them again on application request without rebooting the system.
-
-Some support for the QEMU semihosting interface has been added, like the possibility to exit QEMU on `halt()`, optionally with a specific exit status (`set_qemu_exit_status()`). This may be used to automate tests. There is a new class `CQEMUHostFile`, which allows reading and writing files (including stdin / stdout) on the host system, where QEMU is running on. See the directory *addon/qemu/*, the new sample in *addon/qemu/hostlogdemo/* and the file file *doc/qemu.txt* for info on using QEMU with Circle with the semihosting API.
-
-The Circle build system checks dependencies of source files with header files now and automatically rebuilds the required object files. You will not need to clean the whole project after editing a header file any more. You have to append the (last) line `-include $(DEPS)` to an existing Makefile to enable this feature in your project. The dependencies check may be globally disabled, by defining `CHECK_DEPS = 0` in Config.mk.
-
-If you want to modify a system option in *include/circle/sysconfig.h*, explicitly changing this file is not required any more, which makes it easier to include Circle as a git submodule. All system options can be defined in *Config.mk* this way:
-
-
-```
-DEFINE += -DARM_ALLOW_MULTI_CORE
-DEFINE += -DNO_CALIBRATE_DELAY
-```
-
-Finally a project file for the Geany IDE is provided in *tools/template/*. The recommended toolchain is based on GNU C 9.2.1 now. As announced the Bluetooth support has been removed for legal reasons.
+To allow parallel access to WLAN and SD card, a new **SDHOST driver** for SD card access on Raspberry Pi 1-3 and Zero has been added. You can return to the previous EMMC interface in case of problems (e.g. if using QEMU) or for real-time applications by adding `DEFINE += -DNO_SDHOST` to *Config.mk*. WLAN access is not possible then. On Raspberry Pi 4 the **EMMC2 interface** is used for SD card access now.
 
 Features
 --------
@@ -58,19 +37,21 @@ Circle supports the following features:
 |                       | Hardware exception handler with stack trace         |
 |                       | GDB support using rpi_stub (Raspberry Pi 2 and 3)   |
 |                       | Serial bootloader (by David Welch) included         |
+|                       | Software profiling support (single-core)            |
 |                       | QEMU support                                        |
 |                       |                                                     |
 | SoC devices           | GPIO pins (with interrupt, Act LED) and clocks      |
 |                       | Frame buffer (screen driver with escape sequences)  |
-|                       | UART (Polling and interrupt driver)                 |
+|                       | UART(s) (Polling and interrupt driver)              |
 |                       | System timer (with kernel timers)                   |
 |                       | Platform DMA controller                             |
 |                       | EMMC SD card interface driver                       |
 |                       | PWM output (2 channels)                             |
 |                       | PWM sound output (on headphone jack)                |
-|                       | I2C master and slave (slave not on Raspberry Pi 4)  |
+|                       | I2C master(s) and slave                             |
 |                       | SPI0 master (Polling and DMA driver)                |
 |                       | SPI1 auxiliary master (Polling)                     |
+|                       | SPI3-6 masters of Raspberry Pi 4 (Polling)          |
 |                       | I2S sound output                                    |
 |                       | Hardware random number generator                    |
 |                       | Official Raspberry Pi touch screen                  |
@@ -168,7 +149,7 @@ Copy the Raspberry Pi firmware (from boot/ directory, do *make* there to get the
 
 The *config.txt* file, provided in the boot/ directory, is only needed to enable 64-bit mode and has to be copied on the SD card in this case. It must not be on the SD card otherwise!
 
-FIQ support for AArch64 on the Raspberry Pi 4 requires an additional file *armstub8-rpi4.bin* on the SD card. Please see *boot/README* for information on how to build this file.
+FIQ support for AArch64 on the Raspberry Pi 4 requires an additional file *armstub8-rpi4.bin* on the SD card. Please see [boot/README](boot/README) for information on how to build this file.
 
 Directories
 -----------
@@ -185,22 +166,28 @@ Directories
 Classes
 -------
 
-The following C++ classes have been added to Circle:
-
-Base library
-
-* CHeapAllocator: Allocates blocks from a flat memory region.
-* CPageAllocator: Allocates aligned pages from a flat memory region.
-
-USB library
-
-* CXHCISharedMemAllocator: Shared memory allocation for the xHCI driver.
-
-The available Circle classes are listed in the file *doc/classes.txt*. If you have doxygen installed on your computer you can build a class documentation in *doc/html/* using:
+The available Circle classes are listed in the file [doc/classes.txt](doc/classes.txt). If you have Doxygen installed on your computer you can build a [class documentation](doc/html/index.html) in doc/html/ using:
 
 `./makedoc`
 
-At the moment there are only a few classes described in detail for doxygen.
+At the moment there are only a few classes described in detail for Doxygen.
+
+Additional Topics
+-----------------
+
+* [Standard library support](doc/stdlib-support.txt)
+* [Dynamic memory management and the "new" operator](doc/new-operator.txt)
+* [Serial bootloader support](doc/bootloader.txt)
+* [Multi-core support](doc/multicore.txt)
+* [Debugging support](doc/debug.txt)
+* [QEMU support](doc/qemu.txt)
+* [Eclipse IDE support](doc/eclipse-support.txt)
+* [About real-time applications](doc/realtime.txt)
+* [cmdline.txt options](doc/cmdline.txt)
+* [Screen escape sequences](doc/screen.txt)
+* [Keyboard escape sequences](doc/keyboard.txt)
+* [Memory layout](doc/memorymap.txt)
+* [Known issues](doc/issues.txt)
 
 Trademarks
 ----------

@@ -24,7 +24,7 @@ CIRCLEHOME ?= ..
 -include $(CIRCLEHOME)/Config2.mk	# is not overwritten by "configure"
 
 AARCH	 ?= 32
-RASPPI	 ?= 4
+RASPPI	 = 4
 PREFIX	 ?= arm-none-eabi-
 PREFIX64 ?= aarch64-none-elf-
 

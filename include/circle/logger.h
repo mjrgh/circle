@@ -53,6 +53,8 @@ public:
 
 	boolean Initialize (CDevice *pTarget);
 
+	void SetNewTarget (CDevice *pTarget);
+
 	void Write (const char *pSource, TLogSeverity Severity, const char *pMessage, ...);
 	void WriteV (const char *pSource, TLogSeverity Severity, const char *pMessage, va_list Args);
 
@@ -71,8 +73,6 @@ public:
 	void RegisterPanicHandler (TLogPanicHandler *pHandler);
 
 	static CLogger *Get (void);
-
-	void SetNewTarget (CDevice *pTarget);
 
 private:
 	void Write (const char *pString);

@@ -21,10 +21,10 @@
 #include "webserver.h"
 
 // Network configuration
-//#define USE_DHCP
+#define USE_DHCP
 
 #ifndef USE_DHCP
-static const u8 IPAddress[]      = {192, 168, 0, 97};
+static const u8 IPAddress[]      = {192, 168, 0, 250};
 static const u8 NetMask[]        = {255, 255, 255, 0};
 static const u8 DefaultGateway[] = {192, 168, 0, 1};
 static const u8 DNSServer[]      = {192, 168, 0, 1};

@@ -143,8 +143,6 @@ boolean CBcmFrameBuffer::Initialize (void)
 	m_nBufferSize = m_InitTags.AllocateBuffer.nBufferSize;
 	m_nPitch      = m_InitTags.GetPitch.nValue;
 
-	//memset(reinterpret_cast<void*>(m_nBufferPtr), 0x40, m_nBufferSize);
-
 	return UpdatePalette ();
 }
 

@@ -102,6 +102,9 @@ public:
 	/// \note Does only work with interrupt driver.
 	void RegisterMagicReceivedHandler (const char *pMagic, TMagicReceivedHandler *pHandler);
 
+	/// \brief Waits until all written bytes have been sent out
+	void Flush (void);
+
 protected:
 	/// \return Number of bytes buffer space available for Write()
 	/// \note Does only work with interrupt driver.
@@ -114,10 +117,6 @@ protected:
 	/// \return Next received byte which will be returned by Read() (-1 if no data available)
 	/// \note Does only work with interrupt driver.
 	int Peek (void);
-
-public:
-	/// \brief Waits until all written bytes have been sent out
-	void Flush (void);
 
 private:
 	boolean Write (u8 uchChar);

@@ -29,9 +29,6 @@
 #if RASPPI >= 4 && !defined (USE_PHYSICAL_COUNTER)
 	#error USE_PHYSICAL_COUNTER is required on Raspberry Pi 4!
 #endif
-#if RASPPI == 1 && defined(USE_PHYSICAL_COUNTER)
-	#error USE_PHYSICAL_COUNTER is not allowed on Raspberry Pi 1!
-#endif
 
 struct TKernelTimer
 {
@@ -139,7 +136,6 @@ boolean CTimer::Initialize (void)
 #ifdef CALIBRATE_DELAY
 	TuneMsDelay ();
 #endif
-
 
 #if defined (USE_PHYSICAL_COUNTER) && AARCH == 32
 	u32 nCNTFRQ;

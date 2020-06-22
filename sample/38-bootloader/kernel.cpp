@@ -30,10 +30,10 @@
 #define USE_DHCP
 
 #ifndef USE_DHCP
-static const u8 IPAddress[]      = {192, 168, 0, 250};
+static const u8 IPAddress[]      = {192, 168, 1, 5};
 static const u8 NetMask[]        = {255, 255, 255, 0};
-static const u8 DefaultGateway[] = {192, 168, 0, 1};
-static const u8 DNSServer[]      = {192, 168, 0, 1};
+static const u8 DefaultGateway[] = {192, 168, 1, 1};
+static const u8 DNSServer[]      = {192, 168, 1, 1};
 #endif
 
 static const char FromKernel[] = "kernel";

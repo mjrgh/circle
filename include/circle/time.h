@@ -20,10 +20,14 @@
 #ifndef _circle_time_h
 #define _circle_time_h
 
+#if STDLIB_SUPPORT >= 2
+#include <time.h>
+#else
+typedef signed long time_t;
+#endif
+
 #include <circle/string.h>
 #include <circle/types.h>
-
-typedef signed long time_t;
 
 class CTime			/// Holds, makes and breaks the time
 {

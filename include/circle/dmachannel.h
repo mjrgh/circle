@@ -40,6 +40,19 @@ struct TDMAControlBlock
 }
 PACKED;
 
+struct TDMA4ControlBlock
+{
+	u32	nTransferInformation;
+	u32	nSourceAddress;
+	u32	nSourceInformation;
+	u32	nDestinationAddress;
+	u32	nDestinationInformation;
+	u32	nTransferLength;
+	u32	nNextControlBlockAddress;
+	u32	nReserved;
+}
+PACKED;
+
 enum TDREQ
 {
 	DREQSourceNone	 = 0,
@@ -93,7 +106,14 @@ private:
 	unsigned m_nChannel;
 
 	u8 *m_pControlBlockBuffer;
-	TDMAControlBlock *m_pControlBlock;
+	union TControlBlockPointer
+	{
+		TControlBlockPointer(uintptr ui) : ui(ui) { }
+		uintptr ui;
+		TDMAControlBlock *dma;
+		TDMA4ControlBlock *dma4;
+	} m_pControlBlock;
+	size_t m_cControlBlockSize;
 
 	CInterruptSystem *m_pInterruptSystem;
 	boolean m_bIRQConnected;

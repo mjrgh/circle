@@ -210,7 +210,7 @@ CI2SSoundBaseDevice::~CI2SSoundBaseDevice (void)
 	assert (m_pInterruptSystem != 0);
 	if (m_bIRQConnected)
 	{
-		m_pInterruptSystem->DisconnectIRQ (ARM_IRQ_DMA0+m_nDMAChannel);
+		m_pInterruptSystem->DisconnectIRQ (CMachineInfo::GetIRQForDMA (m_nDMAChannel));
 	}
 
 	m_pInterruptSystem = 0;
@@ -262,7 +262,7 @@ boolean CI2SSoundBaseDevice::Start (void)
 	if (!m_bIRQConnected)
 	{
 		assert (m_pInterruptSystem != 0);
-		m_pInterruptSystem->ConnectIRQ (ARM_IRQ_DMA0+m_nDMAChannel, InterruptStub, this);
+		m_pInterruptSystem->ConnectIRQ (CMachineInfo::GetIRQForDMA (m_nDMAChannel), InterruptStub, this);
 
 		m_bIRQConnected = TRUE;
 	}

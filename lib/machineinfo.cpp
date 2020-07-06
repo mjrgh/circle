@@ -20,6 +20,9 @@
 #include <circle/machineinfo.h>
 #include <circle/gpioclock.h>
 #include <circle/sysconfig.h>
+#if RASPPI >= 4
+#include "circle/bcm2711int.h"
+#endif
 #include <assert.h>
 
 static struct
@@ -448,6 +451,17 @@ boolean CMachineInfo::ArePWMChannelsSwapped (void) const
 	       && m_MachineModel != MachineModelZeroW;
 }
 
+boolean CMachineInfo::TryAllocateDMAChannel (unsigned nChannel)
+{
+	unsigned channelBit = 1 << nChannel;
+	if (m_usDMAChannelMap & channelBit)
+	{
+		m_usDMAChannelMap &= ~channelBit;
+		return true;
+	}
+	return false;
+}
+
 unsigned CMachineInfo::AllocateDMAChannel (unsigned nChannel)
 {
 	assert (s_pThis != 0);
@@ -460,25 +474,34 @@ unsigned CMachineInfo::AllocateDMAChannel (unsigned nChannel)
 	{
 		// explicit channel allocation
 		assert (nChannel <=  DMA_CHANNEL_MAX);
-		if (m_usDMAChannelMap & (1 << nChannel))
-		{
-			m_usDMAChannelMap &= ~(1 << nChannel);
-
+		if (TryAllocateDMAChannel(nChannel))
 			return nChannel;
+	}
+#if RASPPI >= 4
+	else if (nChannel == DMA_CHANNEL_AXIBURST)
+	{
+		// AXI burst-capable channel requested - channel 0 only
+		if (TryAllocateDMAChannel(0))
+			return 0;
+	}
+	else if (nChannel == DMA_CHANNEL_DMA4)
+	{
+		// DMA4 channel - channels 11-15, but channel 15 is reserved by the hardware
+		for (unsigned i = 14; i >= 11; --i)
+		{
+			if (TryAllocateDMAChannel(i))
+				return i;
 		}
 	}
+#endif
 	else
 	{
-		// arbitrary channel allocation
-		int i = nChannel == DMA_CHANNEL_NORMAL ? 6 : DMA_CHANNEL_MAX;
+		// arbitrary channel allocation, LITE or normal
+		int i = nChannel == DMA_CHANNEL_NORMAL ? 6 : DMA_CHANNEL_LITE_MAX;
 		for (; i >= 0; i--)
 		{
-			if (m_usDMAChannelMap & (1 << i))
-			{
-				m_usDMAChannelMap &= ~(1 << i);
-
-				return (unsigned) i;
-			}
+			if (TryAllocateDMAChannel(static_cast<unsigned>(i)))
+				return static_cast<unsigned>(i);
 		}
 	}
 
@@ -498,6 +521,33 @@ void CMachineInfo::FreeDMAChannel (unsigned nChannel)
 	assert (nChannel <= DMA_CHANNEL_MAX);
 	assert (!(m_usDMAChannelMap & (1 << nChannel)));
 	m_usDMAChannelMap |= 1 << nChannel;
+}
+
+unsigned CMachineInfo::GetIRQForDMA (unsigned nChannel)
+{
+#if RASPPI <= 3
+	return ARM_IRQ_DMA0 + nChannel;
+#else
+	static const unsigned irq[] = {
+		ARM_IRQ_DMA0,
+		ARM_IRQ_DMA1,
+		ARM_IRQ_DMA2,
+		ARM_IRQ_DMA3,
+		ARM_IRQ_DMA4,
+		ARM_IRQ_DMA5,
+		ARM_IRQ_DMA6,
+		ARM_IRQ_DMA7,
+		ARM_IRQ_DMA8,
+		ARM_IRQ_DMA9,
+		ARM_IRQ_DMA10,
+		ARM_IRQ_DMA11,
+		ARM_IRQ_DMA12,
+		ARM_IRQ_DMA13,
+		ARM_IRQ_DMA14,
+		ARM_IRQ_DMA14 + 3,
+	};
+	return irq[nChannel];
+#endif
 }
 
 CMachineInfo *CMachineInfo::Get (void)

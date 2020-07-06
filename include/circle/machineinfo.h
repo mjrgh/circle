@@ -101,21 +101,36 @@ public:
 	// DMA channel resource management
 #if RASPPI <= 3
 #define DMA_CHANNEL_MAX		12			// channels 0-12 are supported
+#define DMA_CHANNEL_LITE_MAX	12
 #else
-#define DMA_CHANNEL_MAX		7			// TODO: channels 0-7 are supported
+#define DMA_CHANNEL_MAX		14			// DMA 0-6, LITE 7-10, DMA4 11-14
+#define DMA_CHANNEL_LITE_MAX	10
 #endif
 #define DMA_CHANNEL__MASK	0x0F			// explicit channel number
 #define DMA_CHANNEL_NONE	0x80			// returned if no channel available
 #define DMA_CHANNEL_NORMAL	0x81			// normal DMA engine requested
 #define DMA_CHANNEL_LITE	0x82			// lite (or normal) DMA engine requested
-	// nChannel must be DMA_CHANNEL_NORMAL, DMA_CHANNEL_LITE or an explicit channel number
-	// returns the allocated channel number or DMA_CHANNEL_NONE on failure
+#if RASPPI >= 4
+#define DMA_CHANNEL_AXIBURST    0x83			// AXI burst capable channel
+#define DMA_CHANNEL_DMA4	0x84			// DMA4 channel
+#endif
+	// nChannel must be DMA_CHANNEL_NORMAL, DMA_CHANNEL_LITE, DMA_CHANNEL_AXIBURST,
+	//  or an explicit channel number.
+	// Returns the allocated channel number or DMA_CHANNEL_NONE on failure
 	unsigned AllocateDMAChannel (unsigned nChannel);
 	void FreeDMAChannel (unsigned nChannel);
+
+	// Get the interrupt number for a given DMA channel
+	static unsigned GetIRQForDMA (unsigned nChannel);
 
 	static CMachineInfo *Get (void);
 
 private:
+	// Try allocating a specific DMA channel.  If the channel is available,
+	// marks the channel as allocated and returns true; otherwise returns
+	// false.
+	boolean TryAllocateDMAChannel (unsigned nChannel);
+
 	u32		m_nRevisionRaw;
 	TMachineModel	m_MachineModel;
 	unsigned	m_nModelMajor;
